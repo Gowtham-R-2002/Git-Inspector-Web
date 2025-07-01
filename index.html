@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Inspector - AI-powered Code Review</title>
+    <link rel="icon" type="image/x-icon" href="../assets/app_icon.ico">
+    <style>
+        :root {
+            --primary: #181c23;
+            --glass: rgba(24,28,35,0.75);
+            --glass-blur: 18px;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+            --shadow: 0 8px 32px 0 rgba(31, 41, 55, 0.37);
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #232946 0%, #181c23 100%);
+            color: var(--text);
+            font-family: 'SF Pro Display', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            letter-spacing: 0.01em;
+            overflow-x: hidden;
+        }
+        section {
+            width: 100vw;
+            max-width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            padding: 0;
+        }
+        .hero {
+            margin-top: 5vh;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 1.2s ease;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 24px 0 rgba(59, 130, 246, 0.18);
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(2px);
+        }
+        .product-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin: 0 0 1.1rem 0;
+            letter-spacing: 0.02em;
+            color: #fff;
+            text-shadow: 0 2px 16px rgba(59,130,246,0.08);
+        }
+        .tagline {
+            color: var(--accent-light);
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 2.2rem;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+        .glass-card {
+            background: var(--glass);
+            border-radius: 2rem;
+            box-shadow: var(--shadow);
+            padding: 2.8rem 2.5rem 2.5rem 2.5rem;
+            max-width: 520px;
+            width: 95vw;
+            margin: 0 auto;
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1.5px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 1.2s ease;
+        }
+        .desc {
+            font-size: 1.18rem;
+            color: var(--text);
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            font-weight: 400;
+        }
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 700;
+            padding: 1.15rem 3.2rem;
+            border: none;
+            border-radius: 2.5rem;
+            text-decoration: none;
+            box-shadow: 0 4px 24px 0 rgba(59, 130, 246, 0.18);
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.01em;
+            animation: fadeIn 1.5s cubic-bezier(.4,0,.2,1);
+        }
+        .download-btn:hover, .download-btn:focus {
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.28);
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 3.5rem 0 1.2rem 0;
+            text-align: center;
+            letter-spacing: 0.01em;
+            animation: fadeInUp 1.2s ease;
+        }
+        .section-desc {
+            font-size: 1.15rem;
+            color: var(--muted);
+            text-align: center;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            animation: fadeIn 1.5s cubic-bezier(.4,0,.2,1);
+        }
+        .img-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 1.5s cubic-bezier(.4,0,.2,1);
+        }
+        .img-row img {
+            border-radius: 1.2rem;
+            box-shadow: 0 4px 24px 0 rgba(59, 130, 246, 0.10);
+            width: 320px;
+            max-width: 90vw;
+            height: auto;
+            object-fit: cover;
+            background: #222;
+        }
+        .features {
+            width: 100%;
+            margin-top: 1.5rem;
+            animation: fadeInUp 1.2s ease;
+        }
+        .features-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-bottom: 1.2rem;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto;
+            max-width: 420px;
+        }
+        .features-list li {
+            margin-bottom: 1.1rem;
+            padding-left: 2.2em;
+            position: relative;
+            font-size: 1.13rem;
+            color: #e5e7eb;
+            font-weight: 400;
+            animation: fadeInUp 1.2s ease;
+        }
+        .features-list li:before {
+            content: "\2714";
+            color: var(--accent-light);
+            position: absolute;
+            left: 0;
+            font-size: 1.25em;
+            top: 0.1em;
+        }
+        .example-block {
+            background: rgba(36, 41, 54, 0.85);
+            border-radius: 1.2rem;
+            box-shadow: 0 2px 12px 0 rgba(31, 41, 55, 0.18);
+            padding: 2rem 1.5rem;
+            margin: 2rem auto;
+            max-width: 700px;
+            color: #f3f4f6;
+            font-size: 1.08rem;
+            line-height: 1.7;
+            animation: fadeIn 1.5s cubic-bezier(.4,0,.2,1);
+        }
+        .testimonial {
+            background: rgba(36, 41, 54, 0.85);
+            border-radius: 1.2rem;
+            box-shadow: 0 2px 12px 0 rgba(31, 41, 55, 0.18);
+            padding: 2rem 1.5rem;
+            margin: 2rem auto;
+            max-width: 600px;
+            color: #f3f4f6;
+            font-size: 1.08rem;
+            line-height: 1.7;
+            font-style: italic;
+            animation: fadeIn 1.5s cubic-bezier(.4,0,.2,1);
+        }
+        .testimonial .author {
+            display: block;
+            margin-top: 1.2rem;
+            color: var(--accent-light);
+            font-weight: 700;
+            font-size: 1.05rem;
+            font-style: normal;
+        }
+        .faq {
+            max-width: 700px;
+            margin: 3rem auto 2rem auto;
+            animation: fadeInUp 1.2s ease;
+        }
+        .faq-item {
+            margin-bottom: 2rem;
+        }
+        .faq-q {
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+            font-size: 1.13rem;
+        }
+        .faq-a {
+            color: #e5e7eb;
+            font-size: 1.08rem;
+            line-height: 1.6;
+        }
+        .footer {
+            margin-top: 4rem;
+            color: var(--muted);
+            font-size: 1.05rem;
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+        .footer a {
+            color: var(--accent-light);
+            text-decoration: underline;
+        }
+        @media (max-width: 700px) {
+            .glass-card {
+                padding: 1.5rem 0.5rem 1.5rem 0.5rem;
+                max-width: 99vw;
+            }
+            .product-title {
+                font-size: 1.7rem;
+            }
+            .logo {
+                width: 60px;
+                height: 60px;
+            }
+            .features-list {
+                max-width: 98vw;
+            }
+            .img-row img {
+                width: 98vw;
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .beta-notice {
+            width: 100vw;
+            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+            color: #fff;
+            text-align: center;
+            font-size: 1.08rem;
+            font-weight: 600;
+            padding: 1rem 0.5rem;
+            letter-spacing: 0.01em;
+            box-shadow: 0 2px 12px 0 rgba(59, 130, 246, 0.10);
+            z-index: 100;
+        }
+        .beta-notice a {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="beta-notice">
+        <span>
+            <strong>Notice:</strong> Git Inspector is currently in development (Beta). You may encounter issues while using the app.<br>
+            For feedback or to report bugs, please email <a href="mailto:ergowthamramesh@gmail.com">ergowthamramesh@gmail.com</a>.
+        </span>
+    </div>
+    <section class="hero">
+        <img src="../assets/app_icon.ico" alt="Git Inspector Logo" class="logo">
+        <div class="product-title">Git Inspector</div>
+        <div class="tagline">Your AI-powered Code Reviewer for Git</div>
+    </section>
+    <section>
+        <div class="glass-card">
+            <div class="desc">
+                <strong>Git Inspector</strong> is a smart assistant that seamlessly integrates with your local Git workflow to elevate your code quality. Powered by advanced AI, it automatically reviews your code changes every time you push, providing instant feedback on potential security issues, bugs, and best practices.<br><br>
+                With Git Inspector, you can catch problems before they ever reach your remote repository, streamline your review process, and ship better code with confidence.
+            </div>
+            <a class="download-btn" href="https://rg-git-inspector-south.s3.ap-south-2.amazonaws.com/gitins_installer.exe" target="_blank">
+                Download for Windows
+            </a>
+            <div class="features">
+                <div class="features-title">Key Features</div>
+                <ul class="features-list">
+                    <li><strong>Automated Code Review:</strong> Get instant, AI-driven feedback on your code changes before every push.</li>
+                    <li><strong>Interactive UI:</strong> Review diffs and comments in a clean, modern interface.</li>
+                    <li><strong>File Navigation:</strong> Effortlessly browse all files in your commit for a comprehensive review.</li>
+                    <li><strong>Push Control:</strong> Decide whether to proceed with or cancel your push based on review results.</li>
+                    <li><strong>Easy Setup:</strong> Add the pre-push hook with a single CLI command: <code>gitins --install</code>.</li>
+                    <li><strong>Security & Quality:</strong> Identify potential security issues and bugs before they reach your repository.</li>
+                    <li><strong>Seamless Integration:</strong> Works directly with your existing Git workflow—no extra steps required.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="section-title">How It Works</div>
+        <div class="section-desc">Git Inspector integrates directly with your Git workflow. Every time you push code, it automatically reviews your changes, highlights issues, and provides actionable suggestions—all before your code leaves your machine.</div>
+        <div class="img-row">
+            <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80" alt="Code Review UI Example">
+            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80" alt="Team Collaboration">
+        </div>
+    </section>
+    <section>
+        <div class="section-title">Real-World Scenarios</div>
+        <div class="example-block">
+            <strong>Scenario 1: Solo Developer</strong><br>
+            Alex is working on a side project. Before pushing code, Git Inspector reviews the changes and flags a potential security vulnerability in a new API endpoint. Alex fixes it instantly, saving hours of debugging and preventing a future breach.<br><br>
+            <strong>Scenario 2: Team Collaboration</strong><br>
+            A team at a fintech startup uses Git Inspector. During a busy sprint, a teammate accidentally introduces a bug in a critical calculation. Git Inspector catches it before the code is pushed, allowing the team to fix it before it affects production.<br><br>
+            <strong>Scenario 3: Open Source Maintainer</strong><br>
+            Priya maintains a popular open-source library. Contributors use Git Inspector to ensure their pull requests meet high standards, reducing review time and improving code quality across the project.
+        </div>
+        <div class="img-row">
+            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80" alt="Open Source Collaboration">
+            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80" alt="Developer Productivity">
+        </div>
+    </section>
+    <section>
+        <div class="section-title">Why Choose Git Inspector?</div>
+        <div class="section-desc">
+            <ul class="features-list">
+                <li>Reduce bugs and vulnerabilities before they reach your repository.</li>
+                <li>Save time on code reviews and improve team productivity.</li>
+                <li>Empower developers to write better code with instant, actionable feedback.</li>
+                <li>Seamless integration—no need to change your workflow.</li>
+                <li>Perfect for individuals, teams, and open-source projects.</li>
+            </ul>
+        </div>
+    </section>
+    <section>
+        <div class="section-title">What Developers Say</div>
+        <div class="testimonial">
+            "Git Inspector has become an essential part of our workflow. It catches issues before they become problems and saves us countless hours in code review. Highly recommended!"
+            <span class="author">— Jamie, Lead Developer at FinTech Co.</span>
+        </div>
+        <div class="testimonial">
+            "As an open-source maintainer, Git Inspector helps me ensure every contribution meets our standards. It's like having an extra reviewer on the team!"
+            <span class="author">— Priya, Open Source Maintainer</span>
+        </div>
+    </section>
+    <section>
+        <div class="section-title">Frequently Asked Questions</div>
+        <div class="faq">
+            <div class="faq-item">
+                <div class="faq-q">Is Git Inspector free?</div>
+                <div class="faq-a">Yes! Git Inspector is free for personal and open-source use. For enterprise features, contact us.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Does it work with all Git repositories?</div>
+                <div class="faq-a">Yes, Git Inspector works with any local Git repository on Windows. Mac and Linux support coming soon.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How do I install it?</div>
+                <div class="faq-a">Just download the installer and run <code>gitins --install</code> in your repository. The pre-push hook will be set up automatically.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Is my code sent to the cloud?</div>
+                <div class="faq-a">No. All code analysis happens locally on your machine for privacy and security.</div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="section-title">Ready to Supercharge Your Code Quality?</div>
+        <div style="text-align:center; margin-bottom: 4rem;">
+            <a class="download-btn" href="https://rg-git-inspector-south.s3.ap-south-2.amazonaws.com/gitins_installer.exe" target="_blank">
+                Download Git Inspector for Windows
+            </a>
+        </div>
+    </section>
+    <div class="footer">
+        &copy; 2025 GitInspector Inc. | <a href="https://github.com/yourusername/git-inspector">View on GitHub</a>
+    </div>
+    <script>
+    // Animate sections on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = 'none';
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('section, .glass-card, .testimonial, .example-block, .faq').forEach(el => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(40px)';
+        observer.observe(el);
+    });
+    </script>
+</body>
+</html> 
